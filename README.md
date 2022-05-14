@@ -1,6 +1,6 @@
 # Rush Hour
-The goal of the game is to move the red car (represented in the program by 'X') to the exit.
 <img src="rushhourcards.png" width="200px">
+The goal of the game is to move the red car (represented in the program by 'X') to the exit.
 
 # Rush Hour Puzzle Solver
 A program that uses the best-first search A* algorithm to solve any Rush Hour puzzle board in the optimal number of moves, implemented in Python3. 
