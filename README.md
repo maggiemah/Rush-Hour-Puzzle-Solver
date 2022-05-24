@@ -8,3 +8,6 @@ A program that uses the best-first search A* algorithm to solve any Rush Hour pu
 The program works by adding the given board to a list, generating/adding the possible next moves from the board to the list, and sorting that list by its calculated heuristic cost. Then, the front of the list is explored repeating the same process until the solution (where the red car is at the exit) is found.
 
 # How to run
+Some Rush Hour puzzle boards can generated at https://www.thinkfun.com/internal/rush-hour-challenge-generator/.
+This program can solve that puzzle if the board is inputted as a String argument.
+Example: rushhour(A-BOOOA-B----XXC---D-C---DPPPE-----E)
