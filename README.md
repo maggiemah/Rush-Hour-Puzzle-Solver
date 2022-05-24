@@ -10,4 +10,4 @@ The program works by adding the given board to a list, generating/adding the pos
 # How to run
 Some Rush Hour puzzle boards can generated at https://www.thinkfun.com/internal/rush-hour-challenge-generator/.
 This program can solve that puzzle if the board is inputted as a String argument.
-Example: rushhour(A-BOOOA-B----XXC---D-C---DPPPE-----E)
+Example: rushhour("A-BOOOA-B----XXC---D-C---DPPPE-----E")
