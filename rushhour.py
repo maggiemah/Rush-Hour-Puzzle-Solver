@@ -1,17 +1,19 @@
 import copy
 
-addedStates = [] # list of boards (list of 6 strings) already explored for a puzzle
-
+addedStates = [] # list of boards already explored for a puzzle (prevents duplicates)
 
 # Program that solves a 6x6 Rush Hour puzzle.
 # Inputs: (1) heuristic choice: 0 = simple blocking, 1 = better alt; used in calculateCost()
 #         (2) the initial game board as a list of six 6-character strings
 # Outputs: if the starting board is determined to have no solution immediately, prints "No solution" and returns
 #          otherwise, calls bestfirstsearch(): prints board path, # of moves, # of states explored if solution found
-def rushhour(h, start):
+def rushhour(start, h=1):
+    # input validation: must be a 6x6 board
+    if len(start.strip()) != 36:
+        return
+    start = convertToBoard(start.strip())
     # store vehicles and their positions/coordinates into dictionary
     vehicles = createDictionary(start) # char : {(x1,y1), (x2,y2), ...}
-
     # find the orientation of each vehicle and their rows/columns and store them in direction dictionary
     direction = {}  # char : tuple('r' if horizontal or 'c' if vertical, row/col);
                     # example: {'X' : ('r', 2)}
@@ -20,6 +22,11 @@ def rushhour(h, start):
             direction[key] = ('r', min(vehicles[key])[0])
         else:
             direction[key] = ('c', min(vehicles[key])[1])
+    # validate input (each car/truck must be length 2 or 3)
+    for key in vehicles:
+        if key != '-' and len(vehicles[key]) != 2 and len(vehicles[key]) != 3:
+            print("Invalid input: car/truck size must be 2 or 3")
+            return
 
     hncost = calculateCost(start, vehicles, h, direction)
     initboardO = Board(start, [], hncost)
@@ -57,7 +64,6 @@ def bestfirstsearch(startBoard, h, direction):
         exploredCount += 1
 
 # Class to store board, path, and heuristic cost h(n) as one object.
-# naming convention: boardO is obeject Board, boardS string list
 # Inputs: (1) board represented as a list of six 6-character strings
 #         (2) path represented as a list of boards like (1) leading to input board
 #         (3) the heuristic cost of input board
@@ -66,11 +72,8 @@ def bestfirstsearch(startBoard, h, direction):
 # self.hncost: the heuristic cost of the input board
 class Board:
     def __init__(self, board, path, hncost):
-                         # Examples:
-        self.board = board         # ["------","--B---","XXB---","--BAA-", "------","------"]
-        self.path = path + [board] #  [["--B---","--B---","XXB---","--AA--", "------","------"],
-                                   #   ["--B---","--B---","XXB---","---AA-", "------","------"]
-                                   #   ["------","--B---","XXB---","--BAA-", "------","------"]]
+        self.board = board
+        self.path = path + [board]
         self.hncost = hncost
 
     # Function that prints all boards in the path
@@ -213,7 +216,7 @@ def calculateCost(boardS, dic, heuristic, direction):
                 hn += 1
         return hn
 
-    # calculate cost using alternate heuristic
+    # calculate cost using a better heuristic
     else:
         # Heuristic part 1:
         # Similar to blocking heuristic, but the closer X is to the goal, the lower the h(n).
@@ -271,7 +274,12 @@ def createDictionary(boardS):
 # Input: board represented as a dictionary { char of vehicle : set{coordinates as tuples} }
 # Output: board represented as a list of six 6-character strings
 def getBoard(vehicles):
-    board = [['-','-','-','-','-','-'],['-','-','-','-','-','-'],['-','-','-','-','-','-'],['-','-','-','-','-','-'],['-','-','-','-','-','-'],['-','-','-','-','-','-']]
+    board = [['-','-','-','-','-','-'],\
+             ['-','-','-','-','-','-'],\
+             ['-','-','-','-','-','-'],\
+             ['-','-','-','-','-','-'],\
+             ['-','-','-','-','-','-'],\
+             ['-','-','-','-','-','-']]
     for key in vehicles:
         for row, col in vehicles[key]:
             board[row][col] = key
@@ -287,36 +295,18 @@ def printBoard(boardS):
         print(' ', board)
     print()
 
-'''
-Recursive best first search
-Recursion limit  reached for expert levels, so would have to increase Python recursion limit.
-To use, replace line 107 in rushhour:
-    exploredCount = [0] # initialized as list so that the argument passes by reference for recursive
-    bestfirstsearch([initboardO], exploredCount, h, direction)
-# Function that recursively calls itself to explore generated states in the smallest to largest order of
-# heuristic cost + length of path.
-# Inputs: (1) frontier of states as a list of Board objects that gets sorted by total cost
-#         (2) a list of one integer representing number of states removed and explored from frontier
-#         (3) heuristic choice passed in by user when calling rushhour() (0 or 1)
-#         (4) dictionary that stores orientation of each vehicle and their rows/columns (char : tuple(int, int))
-# Outputs: if solution is found, prints the path to solution, total moves, and states explored and returns 1.
-#          otherwise, returns 0
-def bestfirstsearch(frontier, exploredCount, h, direction):
-    exploredCount[0] += 1
-    # g(n) is len(boardO.path)
-    frontier.sort(key = lambda board: (board.hncost + len(board.path))) # sort frontier by total cost f(n) = h(n) + g(n)
-    if frontier == []:
-        return 0
-    front = frontier[0] # choose board with the lowest total cost
-    frontier.remove(front)
-    if(front.hncost == 0): # goal state reached
-        front.printPath()
-        print("Total moves: ", len(front.path)-1)
-        print("Total states explored: ", exploredCount[0])
-        return 1
-    else:
-        newStates = generateNewStates(front, h, direction)
-        return bestfirstsearch(newStates + frontier, exploredCount, h, direction) # add new states to frontier
-'''
+# Function that converts the board generated by ThinkFun to a representation
+# that can be used by the program.
+def convertToBoard(string):
+    board = []
+    for i in range(0, 6):
+        board.append(string[6*i:6*i+6])
+    return board
 
-rushhour(1,['AAABCD','EFFBCD','E-XXCD','GGH---','-IH-JJ','-IKKLL'])
+board = input("Enter a board to be solved.\n\
+Example: A-BOOOA-B----XXC---D-C---DPPPE-----E\n\
+Enter board: ")
+while 1 and board != 'q':
+    rushhour(board)
+    print()
+    board = input("Enter board or 'q' to stop: ")
